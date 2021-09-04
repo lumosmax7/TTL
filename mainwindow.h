@@ -6,8 +6,8 @@
 #include <QDebug>
 #include <QString>
 #include<QMessageBox>
-#define PAN 0
-#define ROTATE 1
+#include<QTime>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,7 +21,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     void portsAvailable();
     void countTime();
+//    bool sendData(QString data);
     ~MainWindow();
+
 
 private slots:
     void on_pushButton_clicked();
@@ -31,18 +33,18 @@ private slots:
     void on_pushButton_3_clicked();
 
     void on_start_clicked();
+    void logState();
 
 
 
-
-
+    void on_pushButton_4_clicked();
 
 private:
     Ui::MainWindow *ui;
     QList<QSerialPortInfo> serialPortList;
     QSerialPort *serial;
-    QString t1,t2,t3;
-    int flag;
+    QString t1,flag,flagStr,total,logData;
+    QTime timeNow;
 
 
 };

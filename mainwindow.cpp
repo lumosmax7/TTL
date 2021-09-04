@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#define PAN '0'
+#define ROTATE '1'
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     portsAvailable();
-
+    serial = new QSerialPort(this);
 
 }
 
@@ -35,7 +36,7 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-     QString  selectPort= ui->portList->currentText();;
+     QString  selectPort= ui->portList->currentText();
      serial->setPortName(selectPort);
      serial->setBaudRate(9600);
      serial->setDataBits(QSerialPort::Data8);
@@ -43,12 +44,13 @@ void MainWindow::on_pushButton_2_clicked()
      serial->setStopBits(QSerialPort::OneStop);
      serial->setFlowControl(QSerialPort::NoFlowControl);
 
+
 // here may comes problems
      if(!serial->open(QIODevice::ReadWrite)){
-         QMessageBox::critical(NULL,"Tips","fail to open port");
+         QMessageBox::critical(NULL,"Tips","Fail to open the port");
      }
      else{
-         qDebug()<<"open successfully";
+         ui->textBrowser->append("Open Successfully");
      }
 
 }
@@ -64,22 +66,31 @@ void MainWindow::on_pushButton_3_clicked()
 void MainWindow::on_start_clicked()
 {
     t1= ui->t1->text();
-    t2= ui->t2->text();
-    t3= ui->t3->text();
     if(ui->pan->isChecked()){
         flag = PAN;
+        flagStr="panning";
     }
     if(ui->rotate->isChecked()){
         flag= ROTATE;
+        flagStr="rotating";
     }
-    countTime();
+   total= t1+' '+flag;
+   serial->write(total.toUtf8());
+   logState();
 }
 
-// write a thread to make it delay 1s;
-void MainWindow::countTime(){
-    static int i=0;
-    i++;
-    ui->lcdNumber->display(i);
 
+
+
+void MainWindow::logState(){
+    timeNow = QTime::currentTime();
+    logData ="["+ timeNow.toString()+"]"+" Starting , after 10s init, T1 is "+t1+" ms and mode is "+ flagStr;
+    ui->textBrowser->append(logData);
+
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    ui->textBrowser->clear();
 }
 
