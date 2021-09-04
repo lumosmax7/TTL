@@ -43,9 +43,6 @@ void MainWindow::on_pushButton_2_clicked()
      serial->setParity(QSerialPort::NoParity);
      serial->setStopBits(QSerialPort::OneStop);
      serial->setFlowControl(QSerialPort::NoFlowControl);
-
-
-// here may comes problems
      if(!serial->open(QIODevice::ReadWrite)){
          QMessageBox::critical(NULL,"Tips","Fail to open the port");
      }
@@ -58,7 +55,13 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    serial->close();
+
+    if(serial->portName()==""){
+        QMessageBox::critical(NULL,"Tips","Port isn't opened.");
+    }
+    else{
+        serial->close();}
+
 }
 
 
@@ -84,7 +87,7 @@ void MainWindow::on_start_clicked()
 
 void MainWindow::logState(){
     timeNow = QTime::currentTime();
-    logData ="["+ timeNow.toString()+"]"+" Starting , after 10s init, T1 is "+t1+" ms and mode is "+ flagStr;
+    logData ="["+ timeNow.toString()+"]"+" Starting , after 10s init, T1 is "+t1+" ms and mode is "+ flagStr+".";
     ui->textBrowser->append(logData);
 
 }
