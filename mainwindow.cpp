@@ -10,6 +10,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     portsAvailable();
     serial = new QSerialPort(this);
+    T = new threadCal;
+    thread =new QThread(this);
+    T->moveToThread(thread);
+
+    connect(T,&threadCal::logDate,this,&MainWindow::logState);
+    connect(this,&MainWindow::startThread,T,&threadCal::logState);
+    connect(T,&threadCal::isDone,this,&MainWindow::sendData);
+
 
 }
 
@@ -68,6 +76,50 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_start_clicked()
 {
+
+   if(thread->isRunning()==true){
+       return;
+   }
+   thread->start();
+   T->setFlag(false);
+   emit startThread();
+
+
+
+}
+
+
+void MainWindow::logState(){
+    t1= ui->t1->text();
+    if(ui->pan->isChecked()){
+        flag = PAN;
+        flagStr="panning";
+    }
+    if(ui->rotate->isChecked()){
+        flag= ROTATE;
+        flagStr="rotating";
+    }
+    if(timeflag==false){
+        timeCount.start();
+        timeflag=true;
+    }
+    timeNow = QTime::currentTime();
+    QString count;
+    int tmp;
+    tmp = 10 - timeCount.elapsed()/1000;
+    count = QString::number(tmp);
+    logData ="["+ timeNow.toString()+"]"+" Starting , after"+ count  +"s init, T1 is "+t1+" ms and mode is "+ flagStr+".";
+    ui->textBrowser->append(logData);
+
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    ui->textBrowser->clear();
+}
+
+
+void MainWindow::sendData(){
     t1= ui->t1->text();
     if(ui->pan->isChecked()){
         flag = PAN;
@@ -79,21 +131,15 @@ void MainWindow::on_start_clicked()
     }
    total= t1+' '+flag;
    serial->write(total.toUtf8());
-   logState();
 }
 
-
-
-
-void MainWindow::logState(){
-    timeNow = QTime::currentTime();
-    logData ="["+ timeNow.toString()+"]"+" Starting , after 10s init, T1 is "+t1+" ms and mode is "+ flagStr+".";
-    ui->textBrowser->append(logData);
-
-}
-
-void MainWindow::on_pushButton_4_clicked()
+void MainWindow::on_pushButton_5_clicked()
 {
-    ui->textBrowser->clear();
+    if(thread->isRunning()==false){
+        return;
+    }
+    T->setFlag(true);
+    thread->quit();
+    thread->wait();
 }
 

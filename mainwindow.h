@@ -7,6 +7,8 @@
 #include <QString>
 #include<QMessageBox>
 #include<QTime>
+#include"threadcal.h"
+
 
 
 QT_BEGIN_NAMESPACE
@@ -22,6 +24,7 @@ public:
     void portsAvailable();
     void countTime();
 //    bool sendData(QString data);
+    void sendData();
     ~MainWindow();
 
 
@@ -34,18 +37,22 @@ private slots:
 
     void on_start_clicked();
     void logState();
-
-
-
     void on_pushButton_4_clicked();
+
+    void on_pushButton_5_clicked();
 
 private:
     Ui::MainWindow *ui;
     QList<QSerialPortInfo> serialPortList;
     QSerialPort *serial;
     QString t1,flag,flagStr,total,logData;
-    QTime timeNow;
+    QTime timeNow,timeCount;
+    threadCal *T;
+    QThread *thread;
+    bool timeflag=false;
 
+signals:
+    void startThread();
 
 };
 #endif // MAINWINDOW_H
